@@ -8,30 +8,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.findly.ui.viewmodel.AccountViewModel
 import com.example.findly.ui.viewmodel.AuthViewModel
 
 @Composable
-fun RegisterScreen(
-    onRegisterSuccess: () -> Unit, // Успішна реєстрація -> вхід в додаток
-    onNavigateToLogin: () -> Unit  // Кнопка "Вже маю акаунт"
-) {
-    // Використовуємо ту саму ViewModel (shared instance з Activity)
-    val viewModel: AuthViewModel = viewModel()
+fun RegisterScreen(viewModel: AccountViewModel) {
 
     var login by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
-    // Скидаємо старі стани при вході на екран
-    LaunchedEffect(Unit) {
-        viewModel.resetState()
-    }
-
-    // Слідкуємо за успіхом
-    if (viewModel.loginSuccess) {
-        LaunchedEffect(Unit) {
-            onRegisterSuccess()
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -75,7 +59,9 @@ fun RegisterScreen(
         Button(
             onClick = { viewModel.register(login, password) },
             enabled = !viewModel.isLoading,
-            modifier = Modifier.fillMaxWidth().height(50.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
         ) {
             if (viewModel.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
@@ -87,7 +73,7 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Кнопка повернення на вхід
-        TextButton(onClick = onNavigateToLogin) {
+        TextButton(onClick = { viewModel.navigateToLogin() }) {
             Text("Автентифікація")
         }
     }

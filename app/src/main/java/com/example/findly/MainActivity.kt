@@ -25,52 +25,13 @@ import com.example.findly.ui.screens.*
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Ініціалізуємо менеджер токенів (щоб інші екрани могли читати стан)
         TokenManager.init(applicationContext)
 
         setContent {
             MaterialTheme {
-                val authViewModel: AuthViewModel = viewModel()
-
-                // Стан 1: Чи ми вже всередині системи?
-                var isLoggedIn by remember { mutableStateOf(TokenManager.getToken() != null) }
-
-                // Стан 2: Якщо ми НЕ всередині, то який екран показувати (Вхід чи Реєстрація)?
-                var isRegistering by remember { mutableStateOf(false) }
-
-                if (isLoggedIn) {
-                    // --- ЕКРАН КАБІНЕТУ (Або головний екран) ---
-                    AccountScreen(
-                        onLogout = {
-                            authViewModel.resetState()
-                            isLoggedIn = false
-                            isRegistering = false // При виході показуємо логін
-                        }
-                    )
-                } else {
-                    // --- ЗОНА АВТЕНТИФІКАЦІЇ ---
-                    if (isRegistering) {
-                        // Показуємо РЕЄСТРАЦІЮ
-                        RegisterScreen(
-                            onRegisterSuccess = {
-                                // Успішна реєстрація = автоматичний вхід
-                                isLoggedIn = true
-                            },
-                            onNavigateToLogin = {
-                                isRegistering = false // Натиснули "Автентифікація" -> йдемо назад
-                            }
-                        )
-                    } else {
-                        // Показуємо ВХІД
-                        LoginScreen(
-                            onLoginSuccess = {
-                                isLoggedIn = true
-                            },
-                            onNavigateToRegister = {
-                                isRegistering = true // Натиснули "Реєстрація" -> йдемо на форму реєстрації
-                            }
-                        )
-                    }
-                }
+                // Одразу показуємо головний екран з вкладками
+                MainScreen()
             }
         }
     }

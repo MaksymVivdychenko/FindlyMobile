@@ -1,148 +1,25 @@
 package com.example.findly.ui.screens
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.findly.ui.viewmodel.AccountState
 import com.example.findly.ui.viewmodel.AccountViewModel
 
 @Composable
-fun AccountScreen(
-    onLogout: () -> Unit // Колбек, щоб MainActivity знала, що ми вийшли
-) {
+fun AccountScreen() {
+    // Використовуємо ViewModel, щоб керувати станом
     val viewModel: AccountViewModel = viewModel()
-    var showPasswordDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        viewModel.refreshUserData()
-    }
-
-    // Основний контейнер
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Кабінет користувача",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(48.dp))
-
-        // Блок: Логін
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = "Логін:", fontSize = 18.sp)
-            Text(text = viewModel.userLogin, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+    // Вся логіка тепер тут - проста і лінійна
+    when (viewModel.uiState) {
+        AccountState.LOGIN -> {
+            LoginScreen(viewModel)
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Блок: Пароль + Кнопка зміни
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = "Пароль:", fontSize = 18.sp)
-            Text(text = "********", fontSize = 18.sp)
-
-            Button(
-                onClick = { showPasswordDialog = true },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary // Рожевий відтінок (якщо тема стандартна)
-                ),
-                contentPadding = PaddingValues(horizontal = 12.dp)
-            ) {
-                Text("Змінити")
-            }
+        AccountState.REGISTER -> {
+            RegisterScreen(viewModel)
         }
-
-        Spacer(modifier = Modifier.height(64.dp))
-
-        // Кнопка Виходу
-        Button(
-            onClick = {
-                viewModel.logout()
-                onLogout() // Повідомляємо MainActivity переключити екран
-            },
-            modifier = Modifier.fillMaxWidth().height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer)
-        ) {
-            Text("Вийти з акаунту", fontSize = 16.sp)
-        }
-
-        // Відображення повідомлень (успіх/помилка зміни паролю)
-        viewModel.message?.let { msg ->
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = msg, color = MaterialTheme.colorScheme.primary)
+        AccountState.PROFILE -> {
+            UserProfileView(viewModel)
         }
     }
-
-    // Діалогове вікно зміни паролю
-    if (showPasswordDialog) {
-        ChangePasswordDialog(
-            onDismiss = { showPasswordDialog = false },
-            onConfirm = { old, new ->
-                viewModel.changePassword(old, new)
-                showPasswordDialog = false
-            }
-        )
-    }
-}
-
-@Composable
-fun ChangePasswordDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (String, String) -> Unit
-) {
-    var oldPass by remember { mutableStateOf("") }
-    var newPass by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Зміна паролю") },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = oldPass,
-                    onValueChange = { oldPass = it },
-                    label = { Text("Старий пароль") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = newPass,
-                    onValueChange = { newPass = it },
-                    label = { Text("Новий пароль") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    singleLine = true
-                )
-            }
-        },
-        confirmButton = {
-            Button(onClick = { onConfirm(oldPass, newPass) }) {
-                Text("Зберегти")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Скасувати")
-            }
-        }
-    )
 }

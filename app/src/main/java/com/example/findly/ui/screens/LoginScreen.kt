@@ -8,28 +8,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.findly.ui.viewmodel.AccountViewModel
 import com.example.findly.ui.viewmodel.AuthViewModel
 
 @Composable
-fun LoginScreen(
-    onLoginSuccess: () -> Unit, // Що робити, коли вхід успішний (навігація)
-    onNavigateToRegister: () -> Unit // Перехід на реєстрацію
-) {
-    // Отримуємо ViewModel
-    val viewModel: AuthViewModel = viewModel()
-
+fun LoginScreen(viewModel: AccountViewModel) {
     // Локальний стан полів вводу
     var login by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
-    // Слідкуємо за успішним входом
-    if (viewModel.loginSuccess) {
-        // LaunchedEffect запускає код один раз
-        LaunchedEffect(Unit) {
-            onLoginSuccess()
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -86,7 +72,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Кнопка переходу на реєстрацію
-        TextButton(onClick = onNavigateToRegister) {
+        TextButton(onClick = { viewModel.navigateToRegister() }) {
             Text("Реєстрація")
         }
     }
