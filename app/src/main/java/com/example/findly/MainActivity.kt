@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.findly.ui.theme.FindlyTheme
 import com.example.findly.utils.TokenManager
-import com.example.findly.ui.viewmodel.AuthViewModel
 import com.example.findly.ui.screens.*
 
 class MainActivity : ComponentActivity() {

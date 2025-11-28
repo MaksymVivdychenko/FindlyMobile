@@ -32,8 +32,8 @@ data class Book(
     val title: String,
     val imageUrl: String?, // Може бути null
     val authors: List<String>,
-    val publisher: String?,
-    val cover: String?,
+    val publisher: String,
+    val cover: String,
     val minPrice: Double?, // Decimal -> Double
     val maxPrice: Double?,
     val isAvailable: Boolean

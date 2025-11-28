@@ -1,4 +1,4 @@
-package com.example.findly.ui.screens
+package com.example.findly.ui.screens.user
 
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
