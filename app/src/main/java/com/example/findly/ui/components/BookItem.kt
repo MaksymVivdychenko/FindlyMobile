@@ -33,7 +33,7 @@ fun BookItem(book: Book, onClick: () -> Unit) {
         Row(modifier = Modifier.padding(12.dp)) {
             // Картинка книги
             AsyncImage(
-                model = book.imageUrl, // URL з API
+                model = "http://10.0.2.2:5132" + book.imageUrl, // URL з API
                 contentDescription = book.title,
                 modifier = Modifier
                     .width(80.dp)
