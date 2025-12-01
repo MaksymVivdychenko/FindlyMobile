@@ -6,15 +6,18 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsActive
@@ -50,110 +53,124 @@ fun LikedOfferItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp), // Як у BookItem
-        elevation = CardDefaults.cardElevation(4.dp),       // Як у BookItem
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface) // Як у BookItem
+            .padding(vertical = 4.dp), // Зменшили вертикальний відступ між картками
+        elevation = CardDefaults.cardElevation(2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Row(modifier = Modifier.padding(12.dp)) {
-            // Картинка книги (стиль ідентичний BookItem)
+        Row(
+            modifier = Modifier
+                .padding(8.dp) // Зменшили внутрішній відступ (було 12.dp)
+                .height(IntrinsicSize.Min)
+        ) {
+            // --- 1. ФОТО КНИГИ (Зліва) ---
             AsyncImage(
                 model = "http://10.0.2.2:5132" + item.bookImageUrl,
                 contentDescription = item.bookTitle,
                 modifier = Modifier
-                    .width(80.dp)
-                    .height(120.dp)
-                    .clip(RoundedCornerShape(8.dp)),
+                    .width(60.dp) // Зменшили ширину фото
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(6.dp)),
                 contentScale = ContentScale.Crop
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(10.dp))
 
-            Column(modifier = Modifier.weight(1f)) {
-                // Назва
-                Text(
-                    text = item.bookTitle,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                // Автори
-                Text(
-                    text = item.authors.joinToString(", "),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Рядок: Магазин (Замість Видавництва/Обкладинки)
-                Text(
-                    text = item.shopName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.secondary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.weight(1f)) // Притискаємо нижній ряд до низу
-
-                // Рядок: Ціна + Кнопки дій
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Ціна
+            // --- 2. ЦЕНТРАЛЬНА ЧАСТИНА (Книга + Іконки) ---
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Інфо про книгу
+                Column {
                     Text(
-                        text = "${item.currentPrice} грн",
+                        text = item.bookTitle,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = 16.sp // Трохи компактніше
+                    )
+                    Text(
+                        text = item.shopName,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
+                    )
+                }
+
+                // Іконки (Знизу зліва)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.offset(x = (-10).dp) // Компенсація
+                ) {
+                    IconButton(onClick = onRemove, modifier = Modifier.size(32.dp)) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Видалити",
+                            tint = Color.Red,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    IconButton(onClick = onNotifyClick, modifier = Modifier.size(32.dp)) {
+                        Icon(
+                            imageVector = if (item.isNotifySet) Icons.Default.Notifications else Icons.Default.NotificationsNone,
+                            contentDescription = "Сповіщення",
+                            tint = if (item.isNotifySet) Color(0xFFFFC107) else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            }
+
+            // --- 3. ПРАВА ЧАСТИНА (Магазин, Статус, Ціна, Кнопка) ---
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                // Блок інформації про магазин (Зверху)
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "${item.currentPrice} грн",
+                        style = MaterialTheme.typography.titleLarge, // Повернув TitleLarge для балансу
+                        fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.primary
                     )
+                }
 
-                    // Блок кнопок (Дзвіночок, Видалити, Купити)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Дзвіночок
-                        IconButton(
-                            onClick = onNotifyClick,
-                            modifier = Modifier.size(24.dp) // Компактний розмір
-                        ) {
-                            Icon(
-                                imageVector = if (item.isNotifySet) Icons.Default.NotificationsActive else Icons.Default.NotificationsNone,
-                                contentDescription = "Сповіщення",
-                                tint = if (item.isNotifySet) Color(0xFFFFC107) else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                // Блок ціни та кнопки (Знизу)
+                Column(horizontalAlignment = Alignment.End) {
+                    if (item.isAvailable) {
+                        Text(
+                            text = "В наявності",
+                            color = Color(0xFF4CAF50),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 10.sp
+                        )
+                    } else {
+                        Text(
+                            text = "Закінчилося",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 10.sp
+                        )
+                    }
 
-                        Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
 
-                        // Видалити
-                        IconButton(
-                            onClick = onRemove,
-                            modifier = Modifier.size(24.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Видалити",
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        // Купити (маленька кнопка)
-                        Button(
-                            onClick = onBuyClick,
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-                            modifier = Modifier.height(32.dp),
-                            shape = RoundedCornerShape(8.dp),
-                        ) {
-                            Text("Купити", fontSize = 12.sp)
-                        }
+                    Button(
+                        onClick = onBuyClick,
+                        contentPadding = PaddingValues(horizontal = 8.dp),
+                        modifier = Modifier
+                            .height(30.dp) // Дуже компактна кнопка
+                            .defaultMinSize(minWidth = 1.dp), // Дозволяє кнопці бути вузькою
+                        shape = RoundedCornerShape(6.dp),
+                    ) {
+                        Text("Купити", fontSize = 11.sp)
                     }
                 }
             }
