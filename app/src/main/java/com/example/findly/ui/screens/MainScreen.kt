@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.findly.ui.navigation.BottomNavItem
+import com.example.findly.ui.screens.favorite.FavoritesScreen
 import com.example.findly.ui.screens.user.AccountScreen
 
 @Composable

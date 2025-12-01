@@ -11,17 +11,7 @@ object RetrofitClient {
 
     // Тут ми додамо перехоплювач (Interceptor), щоб додавати токен до запитів пізніше
     private val client = OkHttpClient.Builder()
-        .addInterceptor { chain ->
-            val original = chain.request()
-            val requestBuilder = original.newBuilder()
-            val token = com.example.findly.utils.TokenManager.getToken()
-            if (token != null) {
-                requestBuilder.header("Authorization", "Bearer $token")
-            }
-
-            val request = requestBuilder.build()
-            chain.proceed(request)
-        }
+        .addInterceptor(AuthInterceptor())
         .build()
 
     val api: ApiService by lazy {

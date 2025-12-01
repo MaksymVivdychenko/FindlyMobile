@@ -20,12 +20,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.findly.ui.theme.FindlyTheme
 import com.example.findly.utils.TokenManager
 import com.example.findly.ui.screens.*
+import com.example.findly.utils.SessionManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Ініціалізуємо менеджер токенів (щоб інші екрани могли читати стан)
         TokenManager.init(applicationContext)
+        SessionManager.init()
 
         setContent {
             MaterialTheme {

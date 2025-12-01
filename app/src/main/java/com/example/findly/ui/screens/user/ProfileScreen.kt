@@ -32,10 +32,6 @@ import com.example.findly.ui.viewmodel.AccountViewModel
 
 @Composable
 fun UserProfileView(viewModel: AccountViewModel) {
-    LaunchedEffect(Unit) {
-        viewModel.refreshUserData()
-    }
-
     var showPasswordDialog by remember { mutableStateOf(false) }
 
     // Основний контейнер

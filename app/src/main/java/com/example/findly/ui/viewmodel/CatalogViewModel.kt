@@ -1,5 +1,6 @@
 package com.example.findly.ui.viewmodel
 
+import android.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,6 +12,7 @@ import com.example.findly.model.Book
 import com.example.findly.model.Cover
 import com.example.findly.model.Offer
 import com.example.findly.model.Publisher
+import com.example.findly.utils.SessionManager
 
 enum class SearchState {
     LIST,    // Список книг
@@ -41,6 +43,8 @@ class CatalogViewModel : ViewModel() {
     var selectedPublisher by mutableStateOf<Publisher?>(null)
     var selectedCover by mutableStateOf<Cover?>(null)
 
+    var isAvailable by mutableStateOf<Boolean>(false)
+
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
 
@@ -48,6 +52,7 @@ class CatalogViewModel : ViewModel() {
     private var currentPage = 1
     private val pageSize = 10
     var isLastPage by mutableStateOf(false)
+
 
     init {
         loadInitialData()
@@ -93,7 +98,8 @@ class CatalogViewModel : ViewModel() {
                     publisherId = selectedPublisher?.id, // Беремо ID з об'єкта
                     coverId = selectedCover?.id,         // Беремо ID з об'єкта
                     pageNumber = currentPage,
-                    pageSize = pageSize
+                    pageSize = pageSize,
+                    isAvailable = isAvailable
                 )
 
                 if (newBooks.isEmpty()) {
@@ -145,6 +151,11 @@ class CatalogViewModel : ViewModel() {
         loadBooks(reset = true)
     }
 
+    fun onAvailabilityChange(newStatus: Boolean) {
+        isAvailable = newStatus
+        loadBooks(reset = true) // Одразу перезавантажуємо список
+    }
+
     fun onAuthorChange(newAuthor: String) {
         searchAuthor = newAuthor
         loadBooks(reset = true)
@@ -161,10 +172,15 @@ class CatalogViewModel : ViewModel() {
     }
 
     var showPriceDialog by mutableStateOf(false)
+    var showAuthDialog by mutableStateOf(false)
     var selectedOfferForAlert by mutableStateOf<Offer?>(null)
 
     // --- ЛОГІКА ОБРАНИХ (СЕРЦЕ) ---
     fun toggleFavorite(offer: Offer) {
+        if (!SessionManager.isLoggedIn.value) {
+            showAuthDialog = true // Показуємо попередження
+            return
+        }
         viewModelScope.launch {
             try {
                 // Оптимістичне оновлення UI (міняємо іконку відразу)
@@ -186,16 +202,26 @@ class CatalogViewModel : ViewModel() {
     // --- ЛОГІКА СПОВІЩЕНЬ (ДЗВІНОЧОК) ---
 
     fun onBellClick(offer: Offer) {
+        if (!SessionManager.isLoggedIn.value) {
+            showAuthDialog = true
+            return
+        }
+
         if (offer.isPriceSet) {
             // Якщо ціна вже стоїть - видаляємо сповіщення
             removePriceAlert(offer)
         } else {
-            // Якщо ні - відкриваємо діалог
+            if(!offer.isLiked) {
+                toggleFavorite(offer)
+            }
             selectedOfferForAlert = offer
             showPriceDialog = true
         }
     }
 
+    fun dismissAuthDialog() {
+        showAuthDialog = false
+    }
     fun setPriceAlert(price: Double) {
         val offer = selectedOfferForAlert ?: return
         viewModelScope.launch {

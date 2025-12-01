@@ -1,5 +1,9 @@
 package com.example.findly.ui.screens
 
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.findly.ui.screens.search.BookListView
@@ -20,5 +24,19 @@ fun SearchScreen() {
             // Показуємо деталі
             BookDetailsScreen(viewModel)
         }
+    }
+    if (viewModel.showAuthDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissAuthDialog() },
+            title = { Text("Потрібна авторизація") },
+            text = { Text("Ця дія доступна тільки для зареєстрованих користувачів.") },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.dismissAuthDialog()
+                }) {
+                    Text("Зрозуміло")
+                }
+            },
+        )
     }
 }

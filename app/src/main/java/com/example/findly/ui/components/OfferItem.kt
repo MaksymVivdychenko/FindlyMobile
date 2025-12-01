@@ -1,8 +1,10 @@
 package com.example.findly.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,50 +37,103 @@ import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun OfferItem(
     offer: Offer,
     onBuyClick: () -> Unit,
-    onFavoriteClick: () -> Unit, // Новий колбек
-    onBellClick: () -> Unit      // Новий колбек
+    onFavoriteClick: () -> Unit,
+    onBellClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp), // Відступи як у інших карток
+        elevation = CardDefaults.cardElevation(2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface) // Білий/Темний фон
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier
+                .padding(12.dp)
+                .height(IntrinsicSize.Min) // Важливо: вирівнюємо висоту всіх колонок
         ) {
-            // Логотип магазину (або заглушка)
+            // --- 1. ЛОГОТИП МАГАЗИНУ (Зліва) ---
             if (offer.shopLogoUrl != null) {
                 AsyncImage(
                     model = offer.shopLogoUrl,
                     contentDescription = offer.shopName,
-                    modifier = Modifier.size(40.dp).clip(RoundedCornerShape(4.dp))
+                    modifier = Modifier
+                        .size(50.dp) // Трохи збільшили для кращого вигляду
+                        .clip(RoundedCornerShape(8.dp))
+                        .align(Alignment.Top), // Логотип притиснутий до верху
+                    contentScale = ContentScale.Fit
                 )
             } else {
-                // Якщо лого немає - просто іконка або перша літера
-                Box(modifier = Modifier.size(40.dp), contentAlignment = Alignment.Center) {
-                    Text(offer.shopName.take(1), fontWeight = FontWeight.Bold)
+                // Заглушка, якщо лого немає
+                Box(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = offer.shopName.take(1).uppercase(),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
-            // Назва магазину
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = offer.shopName, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                if (!offer.isAvailable) {
-                    Text(text = "Закінчився", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+            // --- 2. ЦЕНТРАЛЬНА ЧАСТИНА (Назва, Наявність, Іконки) ---
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(), // Розтягуємо на всю висоту рядка
+                verticalArrangement = Arrangement.SpaceBetween // Розштовхуємо текст (верх) і іконки (низ)
+            ) {
+                // Верхня частина: Назва + Наявність
+                Column {
+                    Text(
+                        text = offer.shopName,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Індикатор наявності
+                    if (offer.isAvailable) {
+                        Text(
+                            text = "В наявності",
+                            color = Color(0xFF4CAF50), // Зелений
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium
+                        )
+                    } else {
+                        Text(
+                            text = "Закінчився",
+                            color = MaterialTheme.colorScheme.error, // Червоний
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
-                else  {
-                    Text(text = "В наявності", color = Color.Green, style = MaterialTheme.typography.bodySmall)
-                }
-                Row(horizontalArrangement = Arrangement.Start,
-                    modifier = Modifier.offset(x = (-12).dp)){
-                    // 1. СЕРЦЕ
+
+                // Нижня частина: Іконки дій (Серце + Дзвіночок)
+                // Розташовані зліва, під текстом
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier.offset(x = (-12).dp) // Компенсуємо відступ IconButton, щоб вирівняти з текстом
+                ) {
                     IconButton(onClick = onFavoriteClick) {
                         Icon(
                             imageVector = if (offer.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -87,34 +142,37 @@ fun OfferItem(
                         )
                     }
 
-                    // 2. ДЗВІНОЧОК
                     IconButton(onClick = onBellClick) {
                         Icon(
                             imageVector = if (offer.isPriceSet) Icons.Default.Notifications else Icons.Default.NotificationsNone,
                             contentDescription = "Сповіщення",
-                            tint = if (offer.isPriceSet) Color(0xFFFFC107) else MaterialTheme.colorScheme.onSurfaceVariant // Жовтий або Сірий
+                            tint = if (offer.isPriceSet) Color(0xFFFFC107) else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             }
 
-            // Ціна і кнопка
-            Column(modifier = Modifier.fillMaxHeight(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween) {
+            // --- 3. ПРАВА ЧАСТИНА (Ціна, Кнопка) ---
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.SpaceBetween // Ціна зверху, кнопка знизу
+            ) {
                 Text(
                     text = "${offer.price} грн",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Spacer(modifier = Modifier.height(26.dp))
+
                 Button(
                     onClick = onBuyClick,
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
-                    modifier = Modifier.height(36.dp)
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    modifier = Modifier.height(36.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    enabled = offer.isAvailable // Кнопка неактивна, якщо товару немає
                 ) {
-                    Text("Купити")
+                    Text("Купити", fontSize = 13.sp)
                 }
             }
         }

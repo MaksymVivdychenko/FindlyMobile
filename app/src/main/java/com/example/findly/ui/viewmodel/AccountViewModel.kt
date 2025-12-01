@@ -10,6 +10,7 @@ import com.example.findly.api.RetrofitClient
 import com.example.findly.model.LoginRequest
 import com.example.findly.model.RegisterRequest
 import com.example.findly.model.ChangePasswordRequest
+import com.example.findly.utils.SessionManager
 import com.example.findly.utils.TokenManager
 
 // Стани екрану
@@ -23,13 +24,11 @@ class AccountViewModel : ViewModel() {
 
     // --- СТАН UI ---
     // При старті: якщо є токен -> показуємо Профіль, інакше -> Логін
-    var uiState by mutableStateOf(
-        if (TokenManager.getToken() != null) AccountState.PROFILE else AccountState.LOGIN
-    )
+    var uiState by mutableStateOf(AccountState.LOGIN)
         private set
 
     // --- ДАНІ ---
-    var userLogin by mutableStateOf(TokenManager.getLogin() ?: "")
+    var userLogin by mutableStateOf<String>(TokenManager.getLogin() ?: "Користувач")
         private set
 
     var isLoading by mutableStateOf(false)
@@ -37,6 +36,24 @@ class AccountViewModel : ViewModel() {
     var message by mutableStateOf<String?>(null)      // Для повідомлень профілю (зміна паролю)
 
     // --- НАВІГАЦІЯ ---
+
+    init {
+        viewModelScope.launch {
+            refreshUserData()
+            SessionManager.isLoggedIn.collect { isLogged ->
+                if (isLogged) {
+                    // Якщо увійшли -> показуємо Профіль і оновлюємо логін
+                    uiState = AccountState.PROFILE
+                } else {
+                    // Якщо вийшли (або протух токен) -> показуємо Логін і чистимо дані
+                    // Але тільки якщо ми вже не на екрані реєстрації (щоб не збивати юзера)
+                    if (uiState != AccountState.REGISTER) {
+                        uiState = AccountState.LOGIN
+                    }
+                }
+            }
+        }
+    }
 
     fun navigateToRegister() {
         errorMessage = null
@@ -58,15 +75,13 @@ class AccountViewModel : ViewModel() {
                 val response = RetrofitClient.api.login(LoginRequest(login, pass))
 
                 // 1. Зберігаємо дані
-                TokenManager.saveAuthData(response.token, response.userId, response.login)
-                userLogin = response.login
+                SessionManager.login(response.token, response.userId, response.login)
 
-                // 2. ЯВНО перемикаємо стан на Профіль
-                uiState = AccountState.PROFILE
             } catch (e: Exception) {
                 errorMessage = "Помилка входу: ${e.message}"
             } finally {
                 isLoading = false
+                userLogin = TokenManager.getLogin() ?: ""
             }
         }
     }
@@ -78,15 +93,12 @@ class AccountViewModel : ViewModel() {
             try {
                 val response = RetrofitClient.api.register(RegisterRequest(login, pass))
 
-                TokenManager.saveAuthData(response.token, response.userId, response.login)
-                userLogin = response.login
-
-                // Після успішної реєстрації теж йдемо в профіль
-                uiState = AccountState.PROFILE
+                SessionManager.login(response.token, response.userId, response.login)
             } catch (e: Exception) {
                 errorMessage = "Помилка реєстрації: ${e.message}"
             } finally {
                 isLoading = false
+                userLogin = TokenManager.getLogin() ?: ""
             }
         }
     }
@@ -94,10 +106,8 @@ class AccountViewModel : ViewModel() {
     // --- ЛОГІКА ПРОФІЛЮ ---
 
     fun logout() {
-        TokenManager.clear()
         userLogin = ""
-        // Миттєво перемикаємо на екран логіну
-        uiState = AccountState.LOGIN
+        SessionManager.logout()
     }
 
     fun refreshUserData() {
