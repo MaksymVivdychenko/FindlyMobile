@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "198907824116",
+    "project_id": "findly-28c37",
+    "storage_bucket": "findly-28c37.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:198907824116:android:cb7940bd2c073666eddba1",
+        "android_client_info": {
+          "package_name": "com.example.findly"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrx0yQEqUcYudTd0rMuYvMn-IQr4jCnMU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

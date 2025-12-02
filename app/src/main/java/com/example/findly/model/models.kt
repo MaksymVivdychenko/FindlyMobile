@@ -12,12 +12,14 @@ data class AuthResponse(
 
 data class LoginRequest(
     val login: String,
-    val password: String
+    val password: String,
+    val deviceToken: String
 )
 
 data class RegisterRequest(
     val login: String,
-    val password: String
+    val password: String,
+    val deviceToken: String
 )
 
 data class ChangePasswordRequest(

@@ -63,10 +63,10 @@ fun OfferItem(
             // --- 1. ЛОГОТИП МАГАЗИНУ (Зліва) ---
             if (offer.shopLogoUrl != null) {
                 AsyncImage(
-                    model = offer.shopLogoUrl,
+                    model = "http://10.0.2.2:5132" + offer.shopLogoUrl,
                     contentDescription = offer.shopName,
                     modifier = Modifier
-                        .size(50.dp) // Трохи збільшили для кращого вигляду
+                        .size(100.dp) // Трохи збільшили для кращого вигляду
                         .clip(RoundedCornerShape(8.dp))
                         .align(Alignment.Top), // Логотип притиснутий до верху
                     contentScale = ContentScale.Fit

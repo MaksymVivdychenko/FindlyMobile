@@ -12,6 +12,8 @@ import com.example.findly.model.RegisterRequest
 import com.example.findly.model.ChangePasswordRequest
 import com.example.findly.utils.SessionManager
 import com.example.findly.utils.TokenManager
+import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.tasks.await
 
 // Стани екрану
 enum class AccountState {
@@ -72,7 +74,7 @@ class AccountViewModel : ViewModel() {
             isLoading = true
             errorMessage = null
             try {
-                val response = RetrofitClient.api.login(LoginRequest(login, pass))
+                val response = RetrofitClient.api.login(LoginRequest(login, pass, FirebaseMessaging.getInstance().token.await()))
 
                 // 1. Зберігаємо дані
                 SessionManager.login(response.token, response.userId, response.login)
@@ -91,7 +93,7 @@ class AccountViewModel : ViewModel() {
             isLoading = true
             errorMessage = null
             try {
-                val response = RetrofitClient.api.register(RegisterRequest(login, pass))
+                val response = RetrofitClient.api.register(RegisterRequest(login, pass, FirebaseMessaging.getInstance().token.await()))
 
                 SessionManager.login(response.token, response.userId, response.login)
             } catch (e: Exception) {
