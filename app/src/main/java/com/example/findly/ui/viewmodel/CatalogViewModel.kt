@@ -44,6 +44,7 @@ class CatalogViewModel : ViewModel() {
     var selectedCover by mutableStateOf<Cover?>(null)
 
     var isAvailable by mutableStateOf<Boolean>(false)
+    var isPriceAscending by mutableStateOf<Boolean>(false)
 
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
@@ -129,12 +130,27 @@ class CatalogViewModel : ViewModel() {
         offers = emptyList() // Очищаємо старі дані
     }
 
+    fun toggleSortOrder()
+    {
+        isPriceAscending = !isPriceAscending
+        applySort()
+    }
+
+    private fun applySort() {
+        offers = if (isPriceAscending) {
+            offers.sortedBy { it.price }
+        } else {
+            offers.sortedByDescending { it.price }
+        }
+    }
+
     private fun loadOffers(bookId: String) {
         viewModelScope.launch {
             areOffersLoading = true
             try {
                 // Запит до API за списком пропозицій
                 offers = RetrofitClient.api.getOffersByBookId(bookId)
+                applySort()
             } catch (e: Exception) {
                 // Тут можна обробити помилку окремо, або просто показати пустий список
                 println("Помилка завантаження пропозицій: ${e.message}")

@@ -27,8 +27,8 @@ fun MainScreen() {
 
                 // Список вкладок
                 val items = listOf(
-                    BottomNavItem.Search,
                     BottomNavItem.Favorites,
+                    BottomNavItem.Search,
                     BottomNavItem.Account
                 )
 

@@ -67,7 +67,8 @@ fun LikedOfferItem(
                 model = "http://10.0.2.2:5132" + item.bookImageUrl,
                 contentDescription = item.bookTitle,
                 modifier = Modifier
-                    .width(60.dp) // Зменшили ширину фото
+                    .width(80.dp)
+                    .height(100.dp)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(6.dp)),
                 contentScale = ContentScale.Crop
@@ -140,28 +141,26 @@ fun LikedOfferItem(
                         fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.primary
                     )
-                }
-
-                // Блок ціни та кнопки (Знизу)
-                Column(horizontalAlignment = Alignment.End) {
+                    Spacer(modifier = Modifier.height(2.dp))
                     if (item.isAvailable) {
                         Text(
                             text = "В наявності",
                             color = Color(0xFF4CAF50),
                             style = MaterialTheme.typography.labelSmall,
-                            fontSize = 10.sp
+                            fontSize = 12.sp
                         )
                     } else {
                         Text(
                             text = "Закінчилося",
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.labelSmall,
-                            fontSize = 10.sp
+                            fontSize = 12.sp
                         )
                     }
+                }
 
-                    Spacer(modifier = Modifier.height(2.dp))
-
+                // Блок ціни та кнопки (Знизу)
+                Column(horizontalAlignment = Alignment.End) {
                     Button(
                         onClick = onBuyClick,
                         contentPadding = PaddingValues(horizontal = 8.dp),

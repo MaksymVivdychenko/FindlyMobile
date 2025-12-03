@@ -5,11 +5,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    // ВАЖЛИВО: Для емулятора localhost це 10.0.2.2
-    // Переконайся, що твій сервер працює по HTTP, або налаштуй HTTPS сертифікати (для тесту краще HTTP)
-    private const val BASE_URL = "http://10.0.2.2:5132/api/" // Вкажи свій порт замість 50xx
-
-    // Тут ми додамо перехоплювач (Interceptor), щоб додавати токен до запитів пізніше
+    private const val BASE_URL = "http://10.0.2.2:5132/api/"
     private val client = OkHttpClient.Builder()
         .addInterceptor(AuthInterceptor())
         .build()

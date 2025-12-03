@@ -10,6 +10,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -93,13 +95,47 @@ fun BookDetailsScreen(viewModel: CatalogViewModel) {
                         AvailabilityBadge(isAvailable = book.isAvailable)
                     }
                 }
-
-                HorizontalDivider()
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Найкращі ціни:", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Spacer(modifier = Modifier.height(8.dp))
             }
+            item {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
+                // Рядок заголовка і сортування
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp), // Відступи зверху/знизу
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Текст зліва
+                    Text(
+                        text = "Пропозиції магазинів",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    // Кнопка справа
+                    TextButton(
+                        onClick = { viewModel.toggleSortOrder() },
+                        contentPadding = PaddingValues(horizontal = 8.dp) // Компактна кнопка
+                    ) {
+                        // Текст змінюється залежно від стану
+                        Text(
+                            text = if (viewModel.isPriceAscending) "Дешевші зверху" else "Дорожчі зверху",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+
+                        Spacer(modifier = Modifier.width(4.dp))
+
+                        // Іконка стрілочки
+                        Icon(
+                            imageVector = if (viewModel.isPriceAscending) Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
+                            contentDescription = "Сортування",
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            }
             // 2. СПИСОК ПРОПОЗИЦІЙ (OFFERS)
             if (viewModel.areOffersLoading) {
                 item {
